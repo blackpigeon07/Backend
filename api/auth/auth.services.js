@@ -27,13 +27,14 @@ module.exports.verifyJWT = async (token)=>{
             const {id} = await jwt.verify(token,jwt_key,{ algorithms: ['HS256'] });
             // console.log(id);
             let sql = `SELECT * FROM users WHERE user_id = ?`;
-            pool.query(sql,[id],(err,result)=>{
+            pool.query(sql,[id],async (err,result)=>{
                 if(err) return reject(err);
                 // console.log(result[0].user_id);
                 if(result == null || result[0].user_id === undefined){
                     return resolve('401')
                 }else{
-                    resolve(result[0].user_id);
+                    const token = await jwt.sign({id},jwt_key,{ algorithm: 'HS256'});
+                    resolve({token});
                 }
             });
 
