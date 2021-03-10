@@ -30,11 +30,11 @@ module.exports.verifyJWT = async (token)=>{
             pool.query(sql,[id],async (err,result)=>{
                 if(err) return reject(err);
                 // console.log(result[0].user_id);
-                if(result == null || result[0].user_id === undefined){
-                    return resolve('401')
+                if(result === undefined || result === null || result.length === 0 || result[0].user_id === undefined){
+                    return resolve({code:401, message:'We can not authenticate you at the moment. Please sign in again!'})
                 }else{
                     const token = await jwt.sign({id},jwt_key,{ algorithm: 'HS256'});
-                    resolve({token});
+                    resolve({token:token,code:200,message:'Verified'});
                 }
             });
 

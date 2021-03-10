@@ -7,10 +7,10 @@ module.exports.verify = async(req,res)=>{
 
         const state = await verifyJWT(token);
 
-        res.send(state);
+        res.status(state.code).json(state);
 
     }catch(err){
         console.log(err);
-        res.status(500).send('server internal error!');
+        res.status(500).json({code: err.code, message: err.message});
     }
 }

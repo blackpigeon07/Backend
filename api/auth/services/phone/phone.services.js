@@ -10,11 +10,31 @@ const nameConfig = {
 module.exports.storeOTP = (data,callback) => {
     const sql = `INSERT INTO otp (mobile_no,hash) VALUES (?,?)`;
     const {mobile_no,hash} = data; 
-     pool.query(sql,[mobile_no,hash],(err,result) => {
-         if(err) return callback(err);
-         if(result == null) return callback({code:500,message:"no result available"});
-         return callback(null,result);
-     });
+
+    const pre_sql = `SELECT * FROM otp WHERE mobile_no = ?`;
+    const post_sql = `UPDATE otp SET hash = ? , sent_at= ? WHERE mobile_no = ?`;
+
+    pool.query(pre_sql,[mobile_no],(pre_err,pre_result) => {
+        if(pre_err) return callback(pre_err);
+
+        if(pre_result == null || pre_result.length === 0){
+            //no otp from the user begin storage
+            pool.query(sql,[mobile_no,hash],(err,result) => {
+                if(err) return callback(err);
+                if(result == null) return callback({code:500,message:"no result available"});
+                return callback(null,result);
+            });
+        }else{
+            //otp existe from the user update storage
+            const date = new Date();
+            pool.query(post_sql,[hash,date,mobile_no],(post_err,post_result) => {
+            
+                if(post_err) return callback(post_err);
+                if(post_result == null) return callback({code:500,message:"no result available"});
+                return callback(null,post_result);
+            })
+        }
+    })
 }
 
 module.exports.readOTP = (mobileno)=>{
@@ -46,7 +66,7 @@ module.exports.createUser = (data)=>{
         let sql = `SELECT * FROM users WHERE mobile_no = ?`;
         pool.query(sql,[mobile],(err, results)=>{
             if(err) return reject(err);
-            console.log(results);
+            // console.log(results);
             if(results === undefined || results.length == 0){
                 //no users found
                 //create user
