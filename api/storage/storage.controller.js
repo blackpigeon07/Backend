@@ -18,7 +18,7 @@ module.exports.uploadFile = async (req,res)=>{
         uploadWork(files,(err,info)=>{
 
             if(err){
-                throw err;
+                res.status(500).json({code:err.code,message:err.message});
             }else{
                 if(!info || info.length === 0){
                     res.status(500).json({code:500,message:"unable to fetch upload data"});

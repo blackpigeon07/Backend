@@ -24,17 +24,17 @@ module.exports.sendOTP = async (req,res) => {
 
         storeOTP(data,(err,info)=>{
             if(err){
-                res.status(500).send(err.message);
+                res.status(500).json({code:500,message:'We are sorry! We can not store the otp at the moment. If you get an sms with otp please ignore it'});
                 console.log(err);
             }else{
-                res.send('otp sent!');
+                res.status(200).json({code:200,message:'otp sent!'});
             }
         });
 
         
     }catch(err){
         console.log(err);
-        res.status(500).send(err.message);
+        res.status(500).json({code:err.code,message:err.message});
     }
 }
 
@@ -48,8 +48,8 @@ module.exports.verifyOTP = async (req,res)=>{
         const result = await readOTP(senderNo);
         const sentDate = new Date(result.sent_at).getTime();
         const diff = curr_date-sentDate;
-        if(diff> parseInt(4*60*10000000000000)){
-            res.status(400).send('Verification timeout!');
+        if(diff> parseInt(4*60*1000)){
+            res.status(400).json({code:400,message:'timed out!'});
             // const state = await deleteOTP(senderNo);
         }else{
             //otp verification
@@ -75,12 +75,12 @@ module.exports.verifyOTP = async (req,res)=>{
                 deleteOTP(senderNo);
 
             }else{
-                res.status(401).send('wrong OTP');
+                res.status(401).json({code:401, message:'wrong otp'});
             }
         }
 
     }catch(err){
         console.log(err);
-        res.status(500).send(err.message);
+        res.status(500).json({code:err.code, message:err.message});
     }
 }
