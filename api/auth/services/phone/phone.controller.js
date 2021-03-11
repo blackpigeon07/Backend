@@ -17,6 +17,8 @@ module.exports.sendOTP = async (req,res) => {
 
         const smsResponce = await fast2sms.sendMessage(options);
 
+        // console.log(smsResponce+'hi');
+
         const data = {
             mobile_no:senderNo,
             hash:hash
@@ -72,7 +74,7 @@ module.exports.verifyOTP = async (req,res)=>{
                     token:token
                 });
 
-                deleteOTP(senderNo);
+                // deleteOTP(senderNo);
 
             }else{
                 res.status(401).json({code:401, message:'wrong otp'});

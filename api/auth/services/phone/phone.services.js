@@ -74,6 +74,7 @@ module.exports.createUser = (data)=>{
                 const name ='Black pegion user';
                 const address = `Dhanbad,Jharkhand,India`;
 
+                console.log(mobile);
                 sql = `INSERT INTO users (user_id,mobile_no,password,name,home_address) VALUES (?,?,?,?,?)`;
                 pool.query(sql,[id,mobile,otp,name,address],(err,result)=>{
                     if(err) return reject(err);
