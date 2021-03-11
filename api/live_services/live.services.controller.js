@@ -1,5 +1,5 @@
 const server_auth_token = process.env.server_auth_token;
-const {createNewLiveService,readAllLiveServices,readOneLiveService,updateLiveService} = require('./live.services.services');
+const {createNewLiveService,readAllLiveServices,readOneLiveService,updateLiveService,removeOneService} = require('./live.services.services');
 const {verifyJWT} = require('../auth/auth.services');
 
 module.exports = {
@@ -85,6 +85,24 @@ module.exports = {
         }
     },
     remove: async(req, res)=>{
-        res.send('new service remove');
+        
+        const {auth_key} = req.body;
+
+        if(!(auth_key)){
+            res.status(400).json({code:400, message:'auth data is missing',res_time:new Date()});
+        }else if(auth_key ===server_auth_token){
+            //valid create service
+            removeOneService(req.body.id,(err,info)=>{
+                if(err){
+                    res.status(500).json(err);
+                }
+
+                res.status(200).json(info);
+            })
+
+        }else{
+            res.status(401).json({code:401, message:'only an authorised user can create a new service'});
+        }
+
     }
 }

@@ -86,6 +86,7 @@ const updateLiveService = async (data,callback)=>{
 
         pool.query(pre_sql,[data.id],(err, result)=>{
             if(err){
+                console.log(err);
                 return callback({code: err.code, message: err.message,err: err});
             }
 
@@ -103,6 +104,7 @@ const updateLiveService = async (data,callback)=>{
 
             pool.query(sql,[new_title,new_icon,updated,data.id],(err,update_result) =>{
                 if(err){
+                    console.log(err);
                     return callback({code:err.code, message:err.message,err: err});
                 }
 
@@ -121,4 +123,42 @@ const updateLiveService = async (data,callback)=>{
     }
 }
 
-module.exports = {createNewLiveService,readAllLiveServices,readOneLiveService,updateLiveService};
+const removeOneService = async (id,callback)=>{
+
+    try{
+
+        const pre_sql = `SELECT * FROM live_services WHERE service_id = ?`;
+        const sql = `DELETE FROM live_services WHERE service_id = ?`;
+
+        pool.query(pre_sql,[id],(err, result)=>{
+            if(err){
+                console.log(err);
+                return callback({code:err.code, message:err.message,err: err});
+            }
+            if(result.length === 0 || result === null || result === undefined){
+                return callback({code:404, message:'no such service to delete'});
+            }
+
+            pool.query(sql,[id],(err, delete_result)=>{
+                if(err){
+                    console.log(err);
+                    return callback({code:err.code, message:err.message,err:err});
+                }
+
+                // console.log(delete_result);
+                
+                return callback(null, {service:result[0],status:(delete_result.affectedRows >0)});
+
+            })
+        });
+
+    }catch(e){
+
+        console.log(e);
+        return callback({code:e.code,message:e.message,err:e});
+
+    }
+
+}
+
+module.exports = {createNewLiveService,readAllLiveServices,readOneLiveService,updateLiveService,removeOneService};
