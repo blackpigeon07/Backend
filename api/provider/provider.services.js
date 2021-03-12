@@ -138,4 +138,44 @@ const updateProvider = async (data,callback)=>{
 
 }
 
-module.exports = {createProvider,verifyProviderJWT,getProviderById,updateProvider};
+const deleteProvider = async (provider_id,callback)=>{
+
+    try{
+
+        const pre_sql =`SELECT * FROM providers WHERE provider_id = ?`;
+        const sql = `DELETE FROM providers WHERE provider_id=?`;
+
+        pool.query(pre_sql,[provider_id],(pre_err,pre_result)=>{
+
+            if(pre_err){
+                console.log(pre_err);
+                return callback({code:pre_err.code, message:pre_err.message,err: pre_err});
+            }
+
+            if(pre_result === undefined || pre_result.length === 0 || pre_result === null){
+                return callback({code:404, message:'no such provider found to delete',status: false});
+            }
+
+            pool.query(sql,[provider_id],async (err,result)=>{
+                if(err){
+                    console.log(err);
+                    return callback({code:err.code, message:err.message,err: err});
+                }
+
+                if(result === undefined || result.length === 0 || result === null){
+                    return callback({code:500, message:'deletion unconfirmed!'});
+                }
+
+                return callback(null,{code:200,message:'deleted successfully',deletion_id:provider_id,status:true});
+            });
+
+        });
+
+    }catch(err){
+        console.log(err);
+        return callback({code:err.code, message:err.message,err: err});
+    }
+
+}
+
+module.exports = {createProvider,verifyProviderJWT,getProviderById,updateProvider,deleteProvider};

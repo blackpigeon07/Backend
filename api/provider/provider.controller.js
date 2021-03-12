@@ -1,4 +1,4 @@
-const {createProvider,verifyProviderJWT,getProviderById,updateProvider} = require('./provider.services');
+const {createProvider,verifyProviderJWT,getProviderById,updateProvider,deleteProvider} = require('./provider.services');
 const {verifyJWT} = require('../auth/auth.services');
 
 module.exports = {
@@ -109,6 +109,38 @@ module.exports = {
     },
     
     deleteProvider: async (req, res) =>{
-        res.send('provider deleted');
+        const {token,ptoken}=req.body;
+
+        try {
+
+            const userAuthState = await verifyJWT(token);
+
+            if(userAuthState.code === 200){
+
+                const providerAuthState = await verifyProviderJWT(ptoken);
+
+                if(providerAuthState.code === 200){
+
+                    deleteProvider(providerAuthState.provider_id,(err,info) =>{
+                        if(err){
+                            res.status(500).json(err);
+                        }else{
+                            res.status(200).json(info);
+                        }
+                    });
+
+                }else{
+                    res.status(401).json({code:401, message:'provider not verified'});
+                }
+
+            }else{
+                //user not verified
+                res.status(401).json({code:401, message:'not a verified user'});
+            }
+            
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
     }
 }
