@@ -22,7 +22,12 @@ module.exports.verifyJWT = async (token)=>{
     
     return new Promise( async (resolve, reject)=>{
 
+        if(token === null || token === undefined){
+            return reject ({code:400, message:'no token provided'});
+        }
+
         try{
+
 
             const {id} = await jwt.verify(token,jwt_key,{ algorithms: ['HS256'] });
             // console.log(id);
@@ -34,7 +39,7 @@ module.exports.verifyJWT = async (token)=>{
                     return resolve({code:401, message:'We can not authenticate you at the moment. Please sign in again!'})
                 }else{
                     const token = await jwt.sign({id},jwt_key,{ algorithm: 'HS256'});
-                    resolve({token:token,code:200,message:'Verified'});
+                    resolve({token:token,uid:id,code:200,message:'Verified'});
                 }
             });
 
@@ -43,6 +48,6 @@ module.exports.verifyJWT = async (token)=>{
             return reject(err);
         }
 
-    })
+    });
 
 }

@@ -5,6 +5,6 @@ const {createProvider,getProvider,updateProvider,deleteProvider} = require('./pr
 router.post('/newprovider',createProvider);
 router.post('/getprovider',getProvider);
 router.post('/updateprovider',updateProvider);
-router.post('/deleteprovider',deleteProvider);
+router.delete('/deleteprovider',deleteProvider);
 
 module.exports = router;
